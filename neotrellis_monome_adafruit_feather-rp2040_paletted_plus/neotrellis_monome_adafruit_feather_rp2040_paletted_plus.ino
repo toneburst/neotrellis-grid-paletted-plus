@@ -24,7 +24,7 @@
 #include <Adafruit_TinyUSB.h>
 #include <elapsedMillis.h>
 
-//////////User Variables//////////////////////
+////////// User Variables //////////////////////
 
 // I2C pin defs for RP2040  -
 const byte I2C_SDA = 2;  // pins you are using for I2C
@@ -45,7 +45,6 @@ bool PrintSelection = false;    // set to true to have the color # and brightnes
 #define NUM_COLS 16  // DIM_X number of columns of keys across
 #define NUM_LEDS NUM_ROWS *NUM_COLS
 
-
 #define INT_PIN 9
 #define LED_PIN 13  // teensy LED used to show boot info
 
@@ -55,7 +54,7 @@ uint32_t hexColor;
 // If you are plugging directly into the teensy, you will need to adjust this brightness to a much lower value
 int BRIGHTNESS = 255;  // overall grid brightness - use gamma table below to adjust levels
 int resetkeyspressed = 0;
-int page = 0;
+int page = 0; 
 boolean allthreekeys = false;
 boolean isDirty = false;
 
@@ -63,10 +62,8 @@ uint8_t R;
 uint8_t G;
 uint8_t B;
 
-
 bool isInited = true;
 elapsedMillis monomeRefresh;
-
 
 // set your monome device name here
 String deviceID = "neo-monome";
@@ -77,25 +74,24 @@ char mfgstr[32] = "monome";
 char prodstr[32] = "monome";
 char serialstr[32] = "m4216124";
 
-
 // Monome class setup
 MonomeSerialDevice mdp;
 
 int prevLedBuffer[mdp.MAXLEDCOUNT];
 
-
 // NeoTrellis setup
 /*
 // 8x8 setup RP2040
 Adafruit_NeoTrellis trellis_array[NUM_ROWS / 4][NUM_COLS / 4] = {
-  { Adafruit_NeoTrellis(0x2F, &Wire1), Adafruit_NeoTrellis(0x2E, &Wire1) },
-  { Adafruit_NeoTrellis(0x32, &Wire1), Adafruit_NeoTrellis(0x30, &Wire1) }
+  { Adafruit_NeoTrellis(0x2F, &Wire), Adafruit_NeoTrellis(0x2E, &Wire) },
+  { Adafruit_NeoTrellis(0x32, &Wire), Adafruit_NeoTrellis(0x30, &Wire) }
 };
 */
+
 // 16x8 RP2040
 Adafruit_NeoTrellis trellis_array[NUM_ROWS / 4][NUM_COLS / 4] = {
-  { Adafruit_NeoTrellis(0x32, &Wire1), Adafruit_NeoTrellis(0x30, &Wire1), Adafruit_NeoTrellis(0x2F, &Wire1), Adafruit_NeoTrellis(0x2E, &Wire1) },  // top row
-  { Adafruit_NeoTrellis(0x33, &Wire1), Adafruit_NeoTrellis(0x31, &Wire1), Adafruit_NeoTrellis(0x3E, &Wire1), Adafruit_NeoTrellis(0x36, &Wire1) }   // bottom row
+  { Adafruit_NeoTrellis(0x32, &Wire), Adafruit_NeoTrellis(0x30, &Wire), Adafruit_NeoTrellis(0x2F, &Wire), Adafruit_NeoTrellis(0x2E, &Wire) },  // top row
+  { Adafruit_NeoTrellis(0x33, &Wire), Adafruit_NeoTrellis(0x31, &Wire), Adafruit_NeoTrellis(0x3E, &Wire), Adafruit_NeoTrellis(0x36, &Wire) }   // bottom row
 };
 
 Adafruit_MultiTrellis trellis((Adafruit_NeoTrellis *)trellis_array, NUM_ROWS / 4, NUM_COLS / 4);
@@ -243,9 +239,10 @@ const uint8_t allpalettes[colorNum + 1][3][16] = {
     { 0, 30, 42, 50, 62, 85, 101, 117, 134, 154, 175, 190, 206, 229, 239, 255 },
     { 0, 30, 42, 50, 62, 85, 101, 117, 134, 154, 175, 190, 206, 229, 239, 255 },
     { 0, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90 } },
+  
   ////////////////////////////////////////
   //add new colors here
-
+  
   ///////////////////////////////////////
 
   { //blank
@@ -254,12 +251,9 @@ const uint8_t allpalettes[colorNum + 1][3][16] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 };
 
-
-
 // ***************************************************************************
 // **                          FUNCTIONS FOR TRELLIS                        **
 // ***************************************************************************
-
 
 //define a callback for key presses
 TrellisCallback keyCallback(keyEvent evt) {
@@ -348,8 +342,8 @@ void setup() {
 
   Serial.begin(115200);
 
-  Wire1.setSDA(I2C_SDA);
-  Wire1.setSCL(I2C_SCL);
+  Wire.setSDA(I2C_SDA);
+  Wire.setSCL(I2C_SCL);
 
   R = 255;
   G = 255;
@@ -420,9 +414,11 @@ void sendLeds() {
     isDirty = false;
   }
 }
+
 // ***************************************************************************
 // **                       color palette selector                          **
 // ***************************************************************************
+
 void colorpaletteselector() {
   for (int i = page * 8; i < 8 * (1 + page); i++) {
     colorpalettedisplay(i, i);
@@ -430,6 +426,7 @@ void colorpaletteselector() {
   gammaselect();
   trellis.show();
 }
+
 void colorpalettedisplay(int selected, int row) {
   for (int i = 0; i < NUM_COLS; i++) {
     uint8_t gamvalue = gammaTable[i];
@@ -455,6 +452,7 @@ void gammaselect() {  // leftmost column for brightness selection
 // ***************************************************************************
 // **                    SET OVERALL BRIGHTNESS                             **
 // ***************************************************************************
+
 void setBright() {
   // set overall brightness for all pixels
   uint8_t x, y;
@@ -464,9 +462,11 @@ void setBright() {
     }
   }
 }
+
 // ***************************************************************************
 // **                         SET GAMMA TABLE                               **
 // ***************************************************************************
+
 void setGamma(float value) {
   // set overall brightness for all pixels
   int i;
