@@ -1,5 +1,5 @@
 # neotrellis monome compatible grid
 
-Neotrellis Grid Code forRP2040
+Neotrellis Grid Code for AdaFruit Feather RP2040.
 
 
